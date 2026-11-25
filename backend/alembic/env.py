@@ -15,7 +15,7 @@ from alembic import context
 
 # 导入项目配置和模型基类
 from config import settings
-from app.base import Base
+from db.base_model import Base
 import models # 导入模型才会注册到Base.metadata中
 
 config = context.config

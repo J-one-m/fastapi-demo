@@ -118,117 +118,118 @@
 # print(Demo().x)
 
 
-class Base:
-    class_attr = "base-class"
+# class Base:
+#     class_attr = "base-class"
 
-    #其中**kwargs表示任意数量的参数
-    def __init__(self, x, **kwargs):
-        self.x = x
-        self._protected = "protected"
-        self.__private = "private"           # → _Base__private
+#     #其中**kwargs表示任意数量的参数
+#     def __init__(self, x, **kwargs):
+#         self.x = x
+#         self._protected = "protected"
+#         self.__private = "private"           # → _Base__private
 
-        #对于任意数量的参数可以通过setattr来进行批量设置为实例的属性
-        #等价写法：self.__dict__.update(kwargs) #直接更新实例的__dict__
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-
-    def instance_method(self):
-        return f"instance: x={self.x}"
-
-    @classmethod
-    def class_method(cls):
-        return f"class: {cls.__name__}"
-
-    @staticmethod
-    def static_method(a, b):
-        return a + b
-
-    @property
-    def doubled(self):
-        return self.x * 2
-
-    @doubled.setter
-    def doubled(self, v):
-        self.x = max(0, v // 2)
+#         #对于任意数量的参数可以通过setattr来进行批量设置为实例的属性
+#         #等价写法：self.__dict__.update(kwargs) #直接更新实例的__dict__
+#         for k, v in kwargs.items():
+#             setattr(self, k, v)
 
 
-class Child(Base):
-    def try_private(self):
-        try:
-            return self.__private             # mangle 成 _Child__private，找不到
-        except AttributeError as e:
-            return f"AttributeError: {e}"
+#     def instance_method(self):
+#         return f"instance: x={self.x}"
 
-    def get_parent_private(self):
-        return self._Base__private            # 强访问
+#     @classmethod
+#     def class_method(cls):
+#         return f"class: {cls.__name__}"
 
+#     @staticmethod
+#     def static_method(a, b):
+#         return a + b
 
-b = Base(10)
-c = Child(20)
+#     @property
+#     def doubled(self):
+#         return self.x * 2
 
-print("=== 1. 四种方法 ===")
-print(b.instance_method())     # instance: x=10
-print(b.class_method())        # class: Base
-print(c.class_method())        # class: Child（cls 动态指向子类）
-print(b.static_method(1, 2))   # 3
-print(b.doubled)               # 20
-b.doubled = 100
-print(b.x)                     # 50（setter 钳制逻辑）
-
-print("\n=== 2. 类调 vs 实例调 ===")
-print(Base.class_method())     # class: Base
-print(Base.instance_method(b)) # instance: x=50（手动传 self）
-print(Base.doubled)            # <property object>，不触发 getter
-print(Base.instance_method)    # <function>，裸函数
-print(b.instance_method)       # <bound method>，self 已绑定
-
-print("\n=== 3. 属性查找 ===")
-print(b.class_attr)            # base-class（回落到类）
-print(b.__dict__)              # {'x': 50, '_protected': ..., '_Base__private': ...}
-# print(Base.x)                # ❌ AttributeError，类上没有实例属性
-
-print("\n=== 4. 私有 ===")
-print(b._protected)            # protected
-# print(b.__private)           # ❌ AttributeError
-print(b._Base__private)        # private
-print(c.try_private())         # AttributeError: ... '_Child__private'
-print(c.get_parent_private())  # private
-
-print("\n=== 5. 继承与 MRO ===")
-print(Child.__mro__)           # (Child, Base, object)
-print(isinstance(c, Base))     # True
-print(type(c) is Base)         # False（严格相等）
+#     @doubled.setter
+#     def doubled(self, v):
+#         self.x = max(0, v // 2)
 
 
-# 参数的几种进阶写法
+# class Child(Base):
+#     def try_private(self):
+#         try:
+#             return self.__private             # mangle 成 _Child__private，找不到
+#         except AttributeError as e:
+#             return f"AttributeError: {e}"
 
-## 1.位置 + 关键字混用
-class Person:
-    def __init__(self, name, age, *, city='北京', job='工程师'):
-        #                         ⬆ 星号后面的必须使用关键字
-        self.name = name
-        self.age = age
-        self.city = city
-        self.job = job
-#创建实例
-p1 = Person("张三", 25)                       # ✅
-p2 = Person("张三", 25, city="上海")           # ✅
-# p3 = Person("张三", 25, "上海")                         # ❌ TypeError：city 只能用关键字
+#     def get_parent_private(self):
+#         return self._Base__private            # 强访问
 
-## 2.接收任意参数 *args / **kwargs
-class Config:
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
 
-cfg = Config(host="127.0.0.1", port=8080, debug=True)
-print(cfg.host)    # 127.0.0.1
-print(cfg.port)    # 8080
+# b = Base(10)
+# c = Child(20)
 
-## 3.解包传参
-data = {"name": "张三", "age": 25}
-p = Person(**data)           # 等价 Person(name="张三", age=25)
+# print("=== 1. 四种方法 ===")
+# print(b.instance_method())     # instance: x=10
+# print(b.class_method())        # class: Base
+# print(c.class_method())        # class: Child（cls 动态指向子类）
+# print(b.static_method(1, 2))   # 3
+# print(b.doubled)               # 20
+# b.doubled = 100
+# print(b.x)                     # 50（setter 钳制逻辑）
 
-args = ["张三", 25]
-p = Person(*args)            # 等价 Person("张三", 25)
+# print("\n=== 2. 类调 vs 实例调 ===")
+# print(Base.class_method())     # class: Base
+# print(Base.instance_method(b)) # instance: x=50（手动传 self）
+# print(Base.doubled)            # <property object>，不触发 getter
+# print(Base.instance_method)    # <function>，裸函数
+# print(b.instance_method)       # <bound method>，self 已绑定
+
+# print("\n=== 3. 属性查找 ===")
+# print(b.class_attr)            # base-class（回落到类）
+# print(b.__dict__)              # {'x': 50, '_protected': ..., '_Base__private': ...}
+# # print(Base.x)                # ❌ AttributeError，类上没有实例属性
+
+# print("\n=== 4. 私有 ===")
+# print(b._protected)            # protected
+# # print(b.__private)           # ❌ AttributeError
+# print(b._Base__private)        # private
+# print(c.try_private())         # AttributeError: ... '_Child__private'
+# print(c.get_parent_private())  # private
+
+# print("\n=== 5. 继承与 MRO ===")
+# print(Child.__mro__)           # (Child, Base, object)
+# print(isinstance(c, Base))     # True
+# print(type(c) is Base)         # False（严格相等）
+
+
+# # 参数的几种进阶写法
+
+# ## 1.位置 + 关键字混用
+# class Person:
+#     def __init__(self, name, age, *, city='北京', job='工程师'):
+#         #                         ⬆ 星号后面的必须使用关键字
+#         self.name = name
+#         self.age = age
+#         self.city = city
+#         self.job = job
+# #创建实例
+# p1 = Person("张三", 25)                       # ✅
+# p2 = Person("张三", 25, city="上海")           # ✅
+# # p3 = Person("张三", 25, "上海")                         # ❌ TypeError：city 只能用关键字
+
+# ## 2.接收任意参数 *args / **kwargs
+# class Config:
+#     def __init__(self, **kwargs):
+#         for k, v in kwargs.items():
+#             setattr(self, k, v)
+
+# cfg = Config(host="127.0.0.1", port=8080, debug=True)
+# print(cfg.host)    # 127.0.0.1
+# print(cfg.port)    # 8080
+
+# ## 3.解包传参
+# data = {"name": "张三", "age": 25}
+# p = Person(**data)           # 等价 Person(name="张三", age=25)
+
+# args = ["张三", 25]
+# p = Person(*args)            # 等价 Person("张三", 25)
+

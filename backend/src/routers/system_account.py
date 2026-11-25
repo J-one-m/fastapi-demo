@@ -13,7 +13,6 @@ async def get_system_info():
     return { "system_info": {
         "app_name": settings.APP_NAME,
         "debug": settings.DEBUG,
-        "database_url": settings.DATABASE_URL,
     } }
 
 
