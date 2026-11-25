@@ -1,0 +1,8 @@
+{
+  "include": ["src", "alembic"],
+  "exclude": [".venv", "**/__pycache__"],
+  "extraPaths": ["src"],
+  "typeCheckingMode": "standard",
+  "venvPath": ".",
+  "venv": ".venv"
+}
