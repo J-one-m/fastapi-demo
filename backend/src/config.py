@@ -11,6 +11,7 @@ import sys
 from typing import Final
 
 from pathlib import Path
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -60,6 +61,19 @@ class ServerSettings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./app.db" #其中的aiosqlite是驱动名，固定三个斜杠表示相对路径，app.db是数据库文件名
     # 如果需要将本地数据库换成线上的服务器，可以将@符后的本机地址替换为线上服务器的地址
     # DATABASE_URL: str = "mysql+aiomysql://root:123456%40fgj@localhost:3306/learn_test?charset=utf8mb4" #MySQL数据库连接字符串
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def _resolve_sqlite_path(cls, v: str) -> str:
+        """把 SQLite 的相对路径锚定到 backend/ 目录，避免受启动目录影响"""
+        prefix = "sqlite+aiosqlite:///"
+        if v.startswith(prefix):
+            path = v[len(prefix):]
+            # 已是绝对路径（C:/... 或 /...）就保持原样
+            if path and not Path(path).is_absolute():
+                return f"{prefix}{(ROOT_DIR / path).resolve().as_posix()}"
+        return v
+
 # settings = ServerSettings() 在模块加载时立即实例化，后续通过
 # from app.core.config import settings 获取配置对象。
 settings = ServerSettings()

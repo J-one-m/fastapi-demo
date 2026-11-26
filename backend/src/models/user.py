@@ -34,7 +34,8 @@ class User(Base):
 
     """
     id: Mapped[int] = mapped_column(primary_key=True, comment="用户ID")
-    username: Mapped[str] = mapped_column(String(20), unique=True, comment="用户名")
+    account_name: Mapped[str] = mapped_column(String(20), unique=True, comment="账户名")
+    account: Mapped[str] = mapped_column(String(9), comment="账号")
     gender: Mapped[Gender] = mapped_column(
         SAEnum(
             Gender,
@@ -48,7 +49,9 @@ class User(Base):
         comment="性别"
     )
     age: Mapped[int] = mapped_column(default=0, comment="年龄")
-    password: Mapped[str] = mapped_column(String(20), comment="密码")
+    password: Mapped[str] = mapped_column(String(50), comment="密码")
+    last_login_time: Mapped[datetime | None] = mapped_column(DateTime, comment="最后登录时间") 
+    last_login_address: Mapped[str | None] = mapped_column(String(50), comment="最后登录地址")
     create_time: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=datetime.now, comment="更新时间")
 
