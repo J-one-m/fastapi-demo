@@ -1,5 +1,5 @@
 import re
-from typing import Annotated
+from typing import Annotated, Literal
 from pydantic import AfterValidator
 
 """
@@ -26,3 +26,7 @@ def _check_password(v: str)-> str:
 # 用 Annotated 把“类型 + 校验器”组合成一个新类型 Password，模型字段直接用这个类型。
 # 本质是str类型，但附加了元数据AfterValidator，表明在校验后还需要再跑一遍_check_password，这是把校验规则“编码进类型”，类型即规则
 Password = Annotated[str, AfterValidator(_check_password)]
+
+# 性别取值范围与 models.user.Gender 保持一致；
+# 用 Literal 让非法值在校验阶段返回 422，而不是走到 Gender(...) 抛 ValueError 变成 500
+GenderLiteral = Literal["男", "女", "保密"]

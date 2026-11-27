@@ -57,6 +57,13 @@ class ServerSettings(BaseSettings):
 
     APP_NAME: str = "FastAPI Project"
     DEBUG: bool = False
+
+    # --- 鉴权 ---
+    # 用于给 token 签名，泄露等于任何人都能伪造 token；生产环境必须通过环境变量覆盖
+    SECRET_KEY: str = "dev-secret-key-change-me"
+    # 访问 token 有效期（分钟），默认 7 天
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+
     #学习或者demo（单机小工具：爬虫数据、笔记、桌面应用这些）推荐使用SQLite，后续可在换成MySQL
     DATABASE_URL: str = "sqlite+aiosqlite:///./app.db" #其中的aiosqlite是驱动名，固定三个斜杠表示相对路径，app.db是数据库文件名
     # 如果需要将本地数据库换成线上的服务器，可以将@符后的本机地址替换为线上服务器的地址
